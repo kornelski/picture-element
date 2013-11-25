@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content=
+    "width=device-width, initial-scale=1.0, user-scalable=yes">
+    <link href="http://www.whatwg.org/style/specification" rel="stylesheet">
+    <title>
+      Simplified Picture Element
+    </title>
+  </head>
+  <body>
+    <div class="head">
+      <h1>
+        The <code>&lt;picture&gt;</code> element
+      </h1>
+      <dl>
+        <dt>
+          Participate:
+        </dt>
+        <dd>
+          Send feedback to <a href="http://www.whatwg.org/mailing-list" rel=
+          "discussion">whatwg@whatwg.org</a>
+        </dd>
+      </dl>
+
+<p class="copyright"><a href="http://creativecommons.org/publicdomain/zero/1.0/" rel="license"><img alt="CC0" src="http://i.creativecommons.org/p/zero/1.0/80x15.png"></a>
+To the extent possible under law, the editors have waived all copyright and
+related or neighboring rights to this work. In addition, as of
+7 November 2013, the editors have made this specification available
+under the
+<a href="http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0" rel="license">Open Web Foundation Agreement Version 1.0</a>,
+which is available at
+http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0.
+
+    </div>
+    <section id="abstract" class="introductory" property="dcterms:abstract"
+    datatype="" typeof="bibo:Chapter" resource="#ref" rel="bibo:Chapter">
+      <h2 aria-level="1" role="heading" id="h2_abstract">
+        Abstract
+      </h2>
+      <p>
+        The <code>picture</code> element gives authors a way to control which
+        image resource the user agent presents to a user based on a media query
+        and/or support for a particular image format.
+      </p>
+      <p>
+        The primary purpose of the <code>picture</code> element is to address
+        use cases that are left unaddressed by the <code>srcset</code>
+        attribute; the most important being <q><a href=
+        "http://usecases.responsiveimages.org/#art-direction">art
+        direction</a></q>. Other use cases, such as <q><a href=
+        "http://usecases.responsiveimages.org/#matching-media-features-and-media-types">
+        matching media features and media types</a></q> and matching on
+        supported <q><a href=
+        "http://usecases.responsiveimages.org/#image-formats">image
+        formats</a></q>, are also addressed by this specification.
+      </p>
+    </section>
+    <dl class="element">
+      <dt>
+        Content model:
+      </dt>
+      <dd>
+        Transparent, allowing zero or more <code>&lt;source&gt;</code>
+        elements, but with no interactive content descendants and no
+        <code>&lt;picture&gt;</code> descendants.
+      </dd>
+      <dt>
+        Content attributes:
+      </dt>
+      <dd>
+        Global attributes
+      </dd>
+      <dd>
+        width — Horizontal dimension
+      </dd>
+      <dd>
+        height — Vertical dimension
+      </dd>
+      <dt>
+        DOM interface:
+      </dt>
+      <dd>
+        <pre class="idl">
+interface HTMLPictureElement : HTMLElement {
+    attribute DOMString src;
+    attribute DOMString srcset;
+    attribute unsigned long width;
+    attribute unsigned long height;
+    readonly attribute boolean complete;
+};
+</pre>
+      </dd>
+    </dl>
+    <p>
+      In interactive visual media, if support for images has been enabled, the
+      picture element represents an image.
+    </p>
+    <p>
+      In non-visual media, and in visual media if images have been disabled,
+      the picture element represents its fallback content instead.
+    </p>
+    <p class="note">
+      This allows implementations to render broken <code>&lt;picture&gt;</code>
+      in the same way as broken <code>&lt;img&gt;</code> without complexity of
+      dynamically exposing full fallback content.
+    </p>
+    <h3>
+      Controlling image
+    </h3>
+    <p>
+      This specification defines behavior of the <code>&lt;picture&gt;</code>
+      element in terms of controlling an <code>&lt;img&gt;</code> element
+      displayed in its place. When the specification refers to controlling
+      image element, user agents should perform steps as defined for the
+      <code>&lt;img&gt;</code> element. The controlling image element should
+      not be exposed in DOM.
+    </p>
+    <p>
+      Events that are fired on the controlling image must be fired on the
+      picture element.
+    </p>
+    <p class="note">
+      This is intended to allow user agents to implement
+      <code>&lt;picture&gt;</code> via <code>&lt;img&gt;</code> in shadow DOM
+      or reuse of most of <code>&lt;img&gt;</code> element's implementation.
+    </p>
+    <h3>
+      Attributes
+    </h3>
+    <p>
+      The <code>src</code>, <code>srcset</code>, <code>width</code>,
+      <code>height</code> and <code>complete</code> IDL attributes must return
+      value of the corresponding IDL attribute of the controlling image.
+    </p>
+    <p>
+      On setting the <code>width</code> and <code>height</code> attributes must
+      act as if they reflected the respective content attributes of the
+      <code>&lt;picture&gt;</code> element and immediately run the source
+      selection algorithm starting from step 3.
+    </p>
+    <p>
+      When the <code>src</code> or <code>srcset</code> IDL attribute is set:
+    </p>
+    <ol>
+      <li>If the <code>src</code>/<code>srcset</code> IDL attribute
+      (respectively) of the controlling image is equal to the value being set,
+      then abort these steps.
+      </li>
+      <li>Remove all <code>&lt;source&gt;</code> children of the picture
+      element.
+      </li>
+      <li>Insert new <code>&lt;source&gt;</code> element as child of the
+      picture element with <code>src</code>/<code>srcset</code> attribute
+      (respectively) equal to the value being set and let it be the
+      <em>selected source</em>.
+      </li>
+      <li>Immediately run the source selection algorithm starting from step 3.
+      </li>
+    </ol>
+    <p class="note">
+      These attributes are supposed to behave as similarly to
+      <code>Image</code> as possible, specifically setting of <code>src</code>
+      should guarantee that source being used. "Run the source selection
+      algorithm starting from step 3" ensures that reading of
+      <code>src</code>/<code>srcset</code>/<code>width</code>/<code>height</code>
+      immediately after setting returns value that was set (rather than old
+      value until source selection is re-run later).
+    </p>
+    <h3>
+      Fallback content
+    </h3>
+    <p>
+      User agents may expose fallback content to accessibility tools in one of
+      two ways:
+    </p>
+    <ul>
+      <li>by exposing fallback content as-is, as if the picture element did not
+      replace the fallback content. <code>&lt;source&gt;</code> elements MUST
+      NOT be announced.
+      </li>
+      <li>by presenting fallback content as plain text, as if it was set as
+      <code>alt</code> attribute in the controlling image. The plain text
+      fallback should be extracted from fallback content using algorithm
+      similar to <code>innerText</code>, with additional requirements:
+        <ul>
+          <li>content of <code>alt</code> attributes of
+          <code>&lt;img&gt;</code> elements in the fallback content MUST be
+          included,
+          </li>
+          <li>content of <code>&lt;script&gt;</code> and
+          <code>&lt;style&gt;</code> descendants must be ignored,
+          </li>
+          <li>elements that don't represent Phrasing content must imply breaks
+          in the text (e.g. imply whitespace before and after the element).
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <p class="note">
+      Fallback-as-plaintext is intended to allow integration with existing
+      accessibility tools that may support only primitive fallback for images
+      due to limitations of <code>&lt;img alt&gt;</code>. Once implementations
+      of <code>&lt;picture&gt;</code> and accessibility tools mature this
+      simplification may be removed.
+    </p>
+    <p>
+      In interactive visual media with image support enabled user agents SHOULD
+      NOT focus elements inside fallback content.
+    </p>
+    <h3>
+      Source selection algorithm
+    </h3>
+    <p>
+      "Schedule run of source selection algorithm" means the algorithm
+      described below should be executed no earlier than on the next run of the
+      event loop. User agent may choose to delay and coalesce runs of this
+      algorithm.
+    </p>
+    <p>
+      To prevent race conditions JavaScript MUST NOT be allowed to mutate DOM
+      while this algorithm is being executed, and JavaScript SHOULD NOT be
+      allowed to observe source change synchronously (except when
+      <code>src</code>/<code>srcset</code> is set by JavaScript explicitly).
+    </p>
+    <p class="note">
+      This may be achieved simply by running the algorithm on the main JS
+      thread or before any JS is allowed to run.
+    </p>
+    <ol>
+      <li>For each <code>&lt;source&gt;</code> child node (in the HTML
+      namespace) of the picture element, in tree order:
+        <ol type="a">
+          <li>If the current source node doesn't have either non-empty
+          <code>src</code> or <code>srcset</code> attribute, ignore this source
+          and continue evaluating sources.
+          </li>
+          <li>If the current source node has a non-empty <code>type</code>
+          attribute and the type is not supported by the user agent, ignore
+          that source and continue evaluating sources.
+          </li>
+          <li>If the current source node has non-empty <code>media</code>
+          attribute:
+            <ul>
+              <li>If the Media Query contained in the attribute cannot be
+              evaluated <em>temporarily</em> (e.g. depends on layout that
+              hasn't been done yet) then schedule source selection algorhtm to
+              be re-run when the Media Query can be evaluated and abort these
+              steps.
+              </li>
+              <li>If the Media Query does not match, then ignore this source
+              and continue evaluating sources.
+              </li>
+            </ul>
+          </li>
+          <li>Use the current source node as the <em>selected source</em>
+          </li>
+        </ol>
+      </li>
+      <li>If no source was selected then continue these steps as if
+      <code>&lt;source&gt;</code> element with no attributes was the
+      <em>selected source</em>.
+      </li>
+      <li>Copy <code>src</code>, <code>srcset</code>, <code>width</code>, and
+      <code>height</code> content attributes (if present) from the <em>selected
+      source</em> to the <em>controlling image</em>, or delete them accordingly
+      if they're not present on selected source.
+      </li>
+      <li>Copy <code>width</code> and <code>height</code> content attributes
+      (if present) from the picture element to the <em>controlling image</em>.
+      </li>
+    </ol>
+    <h4>
+      Live updates
+    </h4>
+    <p>
+      User agent MUST schedule run of the source selection algorithm when:
+    </p>
+    <ul>
+      <li>children of the picture element are mutated (e.g. insertion/deletion
+      of <code>&lt;source&gt;</code> elements or change of their attributes),
+      </li>
+      <li>media queries in <code>media</code> attributes of
+      <code>&lt;source&gt;</code> children start or cease to match.
+      </li>
+    </ul>
+    <p class="note">
+      User agents may optimize this and avoid actually running source selection
+      algorithm if the change could not possibly affect which source is
+      selected (e.g. new <code>&lt;source&gt;</code> was added later in the
+      document than the currently selected source).
+    </p>
+  </body>
+</html>
