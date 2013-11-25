@@ -22,6 +22,10 @@
           Send feedback to <a href="http://www.whatwg.org/mailing-list" rel=
           "discussion">whatwg@whatwg.org</a>
         </dd>
+        <dt>This version:</dt>
+        <dd>2013-11-24</dd>
+        <dt>Previous version:</dt>
+        <dd><a href="picture-element-2013-11-24.html">2013-11-24</a></dd>
       </dl>
 
 <p class="copyright"><a href="http://creativecommons.org/publicdomain/zero/1.0/" rel="license"><img alt="CC0" src="http://i.creativecommons.org/p/zero/1.0/80x15.png"></a>
@@ -290,6 +294,11 @@ interface HTMLPictureElement : HTMLElement {
       algorithm if the change could not possibly affect which source is
       selected (e.g. new <code>&lt;source&gt;</code> was added later in the
       document than the currently selected source).
+    </p>
+    <h3>Preloading</h3>
+    <p><code>&lt;img></code> elements in fallback content of the <code>&lt;picture></code> element should be treated as inert and SHOULD NOT initiate image downloads.</p>
+    <p class="note">
+      To avoid unneccessary downloads preload scanner should ignore <code>img</code> descendants of <code>picture</code>. This doesn't require preloader parsing into a DOM tree. A simple flag can be toggled on start and end tag of <code>picuture</code>.
     </p>
   </body>
 </html>
